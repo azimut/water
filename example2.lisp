@@ -63,8 +63,6 @@
     (setf *car* (make-c-array NIL :dimensions '(256 256) :element-type :vec3))
     (setf *tex* (make-texture *car*))
     (setf *sam* (sample *tex* :wrap :clamp-to-edge)))
-  (unless *wand*
-    (setf *wand* (magick:make-wan)))
   (unless *bs*
     (setf *bs*  (make-buffer-stream NIL :primitive :points))))
 
