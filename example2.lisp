@@ -49,7 +49,7 @@
     (setf (x from) (* 40 (cos time)))
     (setf (y from) (* 50 (sin time)))))
 
-;;
+#+nil
 (progn
   ;;(make-line)
   (draw-a-few-lines))
