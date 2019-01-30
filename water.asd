@@ -11,6 +11,8 @@
                #:cepl.sdl2
                #:swank
                #:nineveh
+               #:temporal-functions
+               #:deeds
                #:livesupport
                #:cepl.skitter.sdl2
                #:dirt
