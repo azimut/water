@@ -1,6 +1,10 @@
 # water
 
-Testing [lisp-magick-wand](https://github.com/ruricolist/lisp-magick-wand) with [CEPL](https://github.com/cbaggers/cepl). Only using emac's `auto-revert-mode` was too slow in opening the new image.
+Testing [lisp-magick-wand](https://github.com/ruricolist/lisp-magick-wand) with [CEPL](https://github.com/cbaggers/cepl).
+
+## raison d'être
+
+Only using emac's `auto-revert-mode` was too slow in opening the new image.
 
 ## Notes
 
@@ -10,7 +14,7 @@ Testing [lisp-magick-wand](https://github.com/ruricolist/lisp-magick-wand) with 
 ## Examples
 * `example1.lisp` translation of basic example provided with lisp-magick-wand. Just evaluate `(draw-a-few-lines)`
 * `example2.lisp` same as above but with an update (auto) and draw (manual) loop, evalute `(make-line)` and `(draw-a-few-lines)`
-* `example3.lisp` removed classes and update/draw calls but made all the wands globals.
+* `example3.lisp` removed classes and update/draw calls but made all the wands globals, use any of the commented draw calls with the global wands. Don't forget to push-g.
 
 ## License
 
