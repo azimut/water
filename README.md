@@ -4,7 +4,7 @@ Playground for [lisp-magick-wand](https://github.com/ruricolist/lisp-magick-wand
 
 ## Example
 
-![water](../blob/master/static/water.png?raw=true  "water")
+![water](../master/static/water.png?raw=true  "water")
 
 Should work with the code of example3.lisp running.
 ```lisp
