@@ -2,8 +2,6 @@
 
 (in-package #:water)
 
-(defparameter *step* (make-stepper (seconds 1)
-                                   (seconds 1)))
 (defvar *things* NIL)
 (defvar *bs* NIL)
 (defvar *car* NIL)
