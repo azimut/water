@@ -10,6 +10,7 @@ Only using emac's `auto-revert-mode` was too slow in opening the new image.
 
 * I had to add my .so name into lisp-magick-wand/base.lisp. In my case `libMagickWand-6.Q16.so`.
 * Looks like calls to `(magick:draw-image)` are the most cpu expensive and get more and more expesive as more draws are added into the `draw wand` being used, like `(magick:draw-line)`.
+* Due the above, animations seems kind of...if not impossible at a decent cpu usage or speed. Even using a stepper. But there is OpenGL thank to cepl...so.
 
 ## Examples
 * `example1.lisp` translation of basic example provided with lisp-magick-wand. Just evaluate `(draw-a-few-lines)`
