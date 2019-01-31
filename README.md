@@ -50,6 +50,7 @@ xs
 * `example1.lisp` translation of basic example provided with lisp-magick-wand. Just evaluate `(draw-a-few-lines)`
 * `example2.lisp` same as above but with an update (auto) and draw (manual) loop, evalute `(make-line)` and `(draw-a-few-lines)`
 * `example3.lisp` removed classes and update/draw calls but made all the `wands` globals, use any of the commented draw calls with the global wands. Don't forget to push-g.
+* `example4.lisp` animation with stepper once per second, removed use of new-image on clear
 
 ## License
 
