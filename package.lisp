@@ -5,6 +5,7 @@
           #:cepl
           #:rtg-math
           #:vari
+          #:lisp-magick-wand
           #:cepl.skitter
           #:nineveh
           #:livesupport)
