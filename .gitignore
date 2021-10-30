@@ -5,3 +5,6 @@
 
 # lisp
 *.fasl
+
+bin/*
+!bin/Makefile
