@@ -11,8 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@2
       - uses: actions/checkout@2
-        repository: https://github.com/daewok/sbcl
-        ref: static-executable-v2
+        with:
+          repository: https://github.com/daewok/sbcl
+          ref: static-executable-v2
       - run: |
           apk add --no-cache ca-certificates curl openssl make gcc musl-dev linux-headers gnupg patch zlib-dev zlib-static git
           ls -l
