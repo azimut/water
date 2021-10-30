@@ -38,8 +38,9 @@ jobs:
           cd sbcl/
           git fetch
           sh make.sh --fancy --with-sb-linkable-runtime --with-sb-prelink-linkage-table
-          sh install.sh
+          mkdir -vp ~/build/binary
+          INSTALL_ROOT=~/build/binary sh install.sh
         if: steps.cache.outputs.cache-hit != 'true'
 
       - run: |
-          ls -l ~/build
+          ls -R ~/build/binary
