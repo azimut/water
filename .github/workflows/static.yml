@@ -49,7 +49,7 @@ jobs:
           apk add --no-cache imagemagick-dev sdl2-dev
           cd ~/build/sbcl
           sh run-sbcl.sh --non-interactive \
-            --eval '(require :asdf) \
+            --eval '(require :asdf)' \
             --load /__w/water/water/water.asd \
             --eval '(ql:quickload :water)' \
             --load tools-for-build/dump-linkage-info.lisp \
