@@ -7,7 +7,6 @@
         #:vari
         #:lisp-magick-wand
         #:cepl.skitter
-        #:nineveh
         #:livesupport)
   (:import-from #:temporal-functions
                 #:make-stepper

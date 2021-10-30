@@ -8,7 +8,6 @@
 (defvar *dimensions* '(256 256))
 
 (defun init ()
-  (slynk-hook)
   (unless *car*
     (setf *car* (make-c-array NIL :dimensions *dimensions* :element-type :vec3))
     (setf *tex* (make-texture *car*))
@@ -44,21 +43,28 @@
 (defun draw ()
   (when (or (key-down-p key.escape))
     (stop))
-  (setf (resolution (current-viewport))
-        (surface-resolution (current-surface)))
-  (as-frame
-    (map-g #'water-pipe *bs*
-           :image *sam*)))
+  (setf (resolution (current-viewport)) (surface-resolution (current-surface)))
+  (clear)
+  (map-g #'water-pipe *bs*
+         :image *sam*)
+  (swap))
 
 (defun-g water-frag ((uv :vec2) &uniform (image :sampler-2d))
   (texture image uv))
 (defpipeline-g water-pipe (:points)
   :fragment (water-frag :vec2))
 
-(define-simple-main-loop play (:on-start #'init)
-  (draw))
+(let ((running nil))
+  (defun start ()
+    (unless *bs*
+      (cepl:repl))
+    (init)
+    (slynk-hook)
+    (setf running t)
+    (cepl-utils:with-setf (depth-test-function) #'<=
+      (loop :while (and running (not (shutting-down-p))) :do
+        (continuable
+          (step-host)
+          (draw)))))
+  (defun stop () (setf running nil)))
 
-(defun start ()
-  (play :start))
-(defun stop ()
-  (play :stop))

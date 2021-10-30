@@ -13,7 +13,6 @@
                #:cepl.skitter.sdl2
                #:lisp-magick-wand
                #:livesupport
-               #:nineveh
                #:rtg-math.vari
                #:temporal-functions)
   :components ((:file "package")
