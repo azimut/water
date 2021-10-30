@@ -55,6 +55,12 @@ jobs:
                --eval '(ql-dist:install-dist "http://bodge.borodust.org/dist/org.borodust.bodge.txt" :replace t :prompt nil)'
         if: steps.cache.outputs.cache-hit != 'true'
 
+      - name: Get LISP deps
+        run: |
+          cd ~/quicklisp/local-projects/
+          (test -d lisp-magick-wand) || git clone --depth=1 https://github.com/ruricolist/lisp-magick-wand/
+          ( cd lisp-magick-wand/ ; git pull )
+
       # STEP 1: Dump after (require)
       - name: Load into an image
         run: |
