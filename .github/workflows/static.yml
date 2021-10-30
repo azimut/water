@@ -26,10 +26,10 @@ jobs:
             ~/build/
           key: "${{ steps.current-month.outputs.value }}-${{ env.cache-name }}-${{ runner.os }}"
 
+      # BUILD
       - name: APK build deps
         run: |
-          apk add --no-cache ca-certificates curl openssl make gcc musl-dev linux-headers gnupg patch zlib-dev zlib-static git
-
+          apk add --no-cache ca-certificates curl openssl make gcc musl-dev linux-headers gnupg patch zlib-dev zlib-static git tar
       - name: Build SBCL 2.1.10
         run: |
           export SBCL_ARCH=x86-64
