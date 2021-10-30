@@ -48,7 +48,7 @@ jobs:
         run: |
           apk add --no-cache gmp-dev
           cd ~/build/sbcl
-          sbcl --non-interactive \
+          sh run-sbcl.sh --non-interactive \
             --eval '(require :uiop)' \
             --eval '(require :sb-gmp)' \
             --eval '(require :sb-rt)' \
@@ -62,7 +62,7 @@ jobs:
       - name: Build static runtime
         run: |
           cd ~/build/sbcl
-          sbcl --script tools-for-build/create-linkage-table-prelink-info-override.lisp \
+          sh run-sbcl.sh --script tools-for-build/create-linkage-table-prelink-info-override.lisp \
               /tmp/linkage-info.sexp \
               /tmp/linkage-table-prelink-info-override.c
           ls -l /tmp
