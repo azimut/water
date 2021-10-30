@@ -1,16 +1,31 @@
-;;;; water.lisp
-
 (in-package #:water)
 
-(defvar *bs* NIL)
+(defvar *bs*  NIL)
 (defvar *car* NIL)
 (defvar *tex* NIL)
 (defvar *sam* NIL)
 
+(defvar *dimensions* '(256 256))
+
+(defun init ()
+  (slynk-hook)
+  (unless *car*
+    (setf *car* (make-c-array NIL :dimensions *dimensions* :element-type :vec3))
+    (setf *tex* (make-texture *car*))
+    (setf *sam* (sample *tex* :wrap :clamp-to-edge)))
+  (unless *bs*
+    (setf *bs*  (make-buffer-stream NIL :primitive :points)))
+  ;; Draw
+  (draw-a-few-lines))
+
+(defun slynk-hook ()
+  #+slynk
+  (slynk-mrepl::send-prompt (find (bt:current-thread) (slynk::channels)
+                                  :key #'slynk::channel-thread)))
+
 (defun draw-a-few-lines (&optional (width 256) (height 256))
-  (magick:with-magick-wand (wand :create width height :comp ((random 255)
-                                                             (random 255)
-                                                             (random 255)))
+  (magick:with-magick-wand
+      (wand :create width height :comp ((random 255) (random 255) (random 255)))
     (magick:with-drawing-wand (dw)
       (magick:with-pixel-wand (pw :comp (255 255 255))
         (magick:draw-set-stroke-color dw pw))
@@ -26,17 +41,9 @@
                              (c-array-pointer *car*))
     (push-g *car* (texref *tex*))))
 
-;;(draw-a-few-lines)
-
-(defun init ()
-  (unless *car*
-    (setf *car* (make-c-array NIL :dimensions '(256 256) :element-type :vec3))
-    (setf *tex* (make-texture *car*))
-    (setf *sam* (sample *tex* :wrap :clamp-to-edge)))
-  (unless *bs*
-    (setf *bs*  (make-buffer-stream NIL :primitive :points))))
-
 (defun draw ()
+  (when (or (key-down-p key.escape))
+    (stop))
   (setf (resolution (current-viewport))
         (surface-resolution (current-surface)))
   (as-frame
@@ -50,3 +57,8 @@
 
 (define-simple-main-loop play (:on-start #'init)
   (draw))
+
+(defun start ()
+  (play :start))
+(defun stop ()
+  (play :stop))

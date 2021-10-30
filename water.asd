@@ -7,15 +7,12 @@
   :version "0.0.1"
   :serial t
   :depends-on (#:cepl
-               #:rtg-math.vari
                #:cepl.sdl2
-               #:swank
-               #:nineveh
-               #:temporal-functions
-               #:deeds
-               #:livesupport
                #:cepl.skitter.sdl2
-               #:dirt
-               #:lisp-magick-wand)
+               #:lisp-magick-wand
+               #:livesupport
+               #:nineveh
+               #:rtg-math.vari
+               #:temporal-functions)
   :components ((:file "package")
                (:file "water")))
