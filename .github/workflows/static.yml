@@ -9,9 +9,6 @@ jobs:
       image: clfoundation/sbcl:alpine3.14
     steps:
       - uses: actions/checkout@v2
-      - run: |
-          ls /
-          ls -R /__w
       # CACHE
       - run: mkdir -pv ~/build
       - name: Get Current Month
@@ -48,10 +45,12 @@ jobs:
       # STEP 1: Dump after (require)
       - name: Load into an image
         run: |
+          ls -l /__w/water/water/water.asd
           apk add --no-cache imagemagick-dev sdl2-dev
           cd ~/build/sbcl
           sh run-sbcl.sh --non-interactive \
-            --load /__w/water/water.asd \
+            --eval '(require :asdf) \
+            --load /__w/water/water/water.asd \
             --eval '(ql:quickload :water)' \
             --load tools-for-build/dump-linkage-info.lisp \
             --eval '(sb-dump-linkage-info:dump-to-file "/tmp/linkage-info.sexp")' \
