@@ -58,20 +58,20 @@ jobs:
             --eval '(sb-dump-linkage-info:dump-to-file "/tmp/linkage-info.sexp")' \
             --eval '(sb-ext:save-lisp-and-die "/tmp/sb-gmp-tester.core")'
           ls -l /tmp
-        - name: Build static runtime
-          run: |
-            cd ~/build/sbcl
-            sbcl --script tools-for-build/create-linkage-table-prelink-info-override.lisp \
+      - name: Build static runtime
+        run: |
+          cd ~/build/sbcl
+          sbcl --script tools-for-build/create-linkage-table-prelink-info-override.lisp \
               /tmp/linkage-info.sexp \
               /tmp/linkage-table-prelink-info-override.c \
-            while read l; do \
-              eval "${l%%=*}=\"${l#*=}\""; \
-            done < /usr/local/lib/sbcl/sbcl.mk \
-            $CC $CFLAGS -Wno-builtin-declaration-mismatch -o /tmp/linkage-table-prelink-info-override.o -c /tmp/linkage-table-prelink-info-override.c \
-            $CC -no-pie -static $LINKFLAGS -o /tmp/static-sbcl /usr/local/lib/sbcl/$LIBSBCL /tmp/linkage-table-prelink-info-override.o -lgmp $LIBS
-        - name: Dump
-          run: |
-            /tmp/static-sbcl \
-              --core /tmp/sb-gmp-tester.core \
-              --non-interactive \
-              --eval '(sb-ext:save-lisp-and-die "/tmp/sb-gmp-tester" :executable t :toplevel (lambda () (uiop:load-from-string *sb-gmp-tests*) (sb-rt:do-tests) (exit)) :compression t)'
+          while read l; do \
+            eval "${l%%=*}=\"${l#*=}\""; \
+          done < /usr/local/lib/sbcl/sbcl.mk \
+          $CC $CFLAGS -Wno-builtin-declaration-mismatch -o /tmp/linkage-table-prelink-info-override.o -c /tmp/linkage-table-prelink-info-override.c \
+          $CC -no-pie -static $LINKFLAGS -o /tmp/static-sbcl /usr/local/lib/sbcl/$LIBSBCL /tmp/linkage-table-prelink-info-override.o -lgmp $LIBS
+      - name: Dump
+        run: |
+          /tmp/static-sbcl \
+            --core /tmp/sb-gmp-tester.core \
+            --non-interactive \
+            --eval '(sb-ext:save-lisp-and-die "/tmp/sb-gmp-tester" :executable t :toplevel (lambda () (uiop:load-from-string *sb-gmp-tests*) (sb-rt:do-tests) (exit)) :compression t)'
