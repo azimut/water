@@ -2,7 +2,6 @@ name: Static Build
 
 on: [push]
 
-# TODO: volume and cache
 jobs:
   container:
     runs-on: ubuntu-latest
@@ -10,13 +9,35 @@ jobs:
       image: clfoundation/sbcl:alpine3.14
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/checkout@v2
+
+      # CACHE
+      - run: mkdir -pv ~/Downloads
+      - name: Get Current Month
+        id: current-month
+        run: |
+          echo "::set-output name=value::$(date -u "+%Y-%m")"
+      - name: Cache SBCL 2.1.10 Setup
+        id: cache
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-sbcl-2.1.10
         with:
-          repository: daewok/sbcl
-          path: sbcl-static
-          ref: static-executable-v2
-      - run: |
+          path: |
+            ~/build/
+          key: "${{ steps.current-month.outputs.value }}-${{ env.cache-name }}-${{ runner.os }}"
+
+      - name: APK build deps
+        run: |
           apk add --no-cache ca-certificates curl openssl make gcc musl-dev linux-headers gnupg patch zlib-dev zlib-static git
-          ls -l
-          ls -l ../
-          ls -l ~/
+
+      - name: Build SBCL 2.1.10
+        run: |
+          cd build/
+          git clone -b static-executable-v2-2.1.10 --depth=1 https://github.com/daewok/sbcl
+          cd sbcl/
+          sh make.sh --fancy --with-sb-linkable-runtime --with-sb-prelink-linkage-table
+          sh install.sh
+        if: steps.cache.outputs.cache-hit != 'true'
+
+      - run: |
+          ls -l ~/build
