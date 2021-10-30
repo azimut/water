@@ -24,6 +24,7 @@ jobs:
         with:
           path: |
             ~/build/
+            ~/.cache/common-lisp/
           key: "${{ steps.current-month.outputs.value }}-${{ env.cache-name }}-${{ runner.os }}"
 
       # BUILD
@@ -42,5 +43,35 @@ jobs:
           INSTALL_ROOT=~/build/binary sh install.sh
         if: steps.cache.outputs.cache-hit != 'true'
 
-      - run: |
-          ls -R ~/build/binary
+      - run: pkg-config --list-all | sort
+
+      - name: Load sb-gmp into an image
+        run: |
+          apk add --no-cache gmp-dev
+          cd ~/build/sbcl
+          sbcl --non-interactive \
+            --eval '(require :uiop)' \
+            --eval '(require :sb-gmp)' \
+            --eval '(require :sb-rt)' \
+            --eval '(defvar *sb-gmp-tests* (uiop:read-file-string "contrib/sb-gmp/tests.lisp"))' \
+            --load tools-for-build/dump-linkage-info.lisp \
+            --eval '(sb-dump-linkage-info:dump-to-file "/tmp/linkage-info.sexp")' \
+            --eval '(sb-ext:save-lisp-and-die "/tmp/sb-gmp-tester.core")'
+          ls -l /tmp
+        - name: Build static runtime
+          run: |
+            cd ~/build/sbcl
+            sbcl --script tools-for-build/create-linkage-table-prelink-info-override.lisp \
+              /tmp/linkage-info.sexp \
+              /tmp/linkage-table-prelink-info-override.c \
+            while read l; do \
+              eval "${l%%=*}=\"${l#*=}\""; \
+            done < /usr/local/lib/sbcl/sbcl.mk \
+            $CC $CFLAGS -Wno-builtin-declaration-mismatch -o /tmp/linkage-table-prelink-info-override.o -c /tmp/linkage-table-prelink-info-override.c \
+            $CC -no-pie -static $LINKFLAGS -o /tmp/static-sbcl /usr/local/lib/sbcl/$LIBSBCL /tmp/linkage-table-prelink-info-override.o -lgmp $LIBS
+        - name: Dump
+          run: |
+            /tmp/static-sbcl \
+              --core /tmp/sb-gmp-tester.core \
+              --non-interactive \
+              --eval '(sb-ext:save-lisp-and-die "/tmp/sb-gmp-tester" :executable t :toplevel (lambda () (uiop:load-from-string *sb-gmp-tests*) (sb-rt:do-tests) (exit)) :compression t)'
