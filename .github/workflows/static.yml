@@ -22,8 +22,9 @@ jobs:
           cache-name: cache-alpine-static-sbcl-2.1.9
         with:
           path: |
-            ~/build/
-            ~/.cache/common-lisp/
+            ~/build
+            ~/quicklisp
+            ~/.cache/common-lisp
           key: "${{ steps.current-month.outputs.value }}-${{ env.cache-name }}-${{ runner.os }}"
 
       # BUILD
@@ -40,6 +41,18 @@ jobs:
           sh make.sh --fancy --with-sb-linkable-runtime --with-sb-prelink-linkage-table
           mkdir -vp ~/build/binary
           INSTALL_ROOT=~/build/binary sh install.sh
+        if: steps.cache.outputs.cache-hit != 'true'
+
+      - name: Install quicklisp
+        run: |
+          cd ~/build/sbcl
+          wget https://beta.quicklisp.org/quicklisp.lisp
+          sh run-sbcl.sh --non-interactive \
+               --eval '(load "quicklisp.lisp")' \
+               --eval '(quicklisp-quickstart:install)' \
+               --eval '(ql-util:without-prompting (ql:add-to-init-file))' \
+               --eval '(ql:update-all-dists)' \
+               --eval '(ql-dist:install-dist "http://bodge.borodust.org/dist/org.borodust.bodge.txt" :replace t :prompt nil)'
         if: steps.cache.outputs.cache-hit != 'true'
 
       # STEP 1: Dump after (require)
