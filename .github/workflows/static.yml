@@ -43,8 +43,6 @@ jobs:
           INSTALL_ROOT=~/build/binary sh install.sh
         if: steps.cache.outputs.cache-hit != 'true'
 
-      - run: pkg-config --list-all | sort
-
       # STEP 1: Dump after (require)
       - name: Load sb-gmp into an image
         run: |
@@ -69,9 +67,9 @@ jobs:
               /tmp/linkage-table-prelink-info-override.c
           while read l; do \
             eval "${l%%=*}=\"${l#*=}\""; \
-          done < /usr/local/lib/sbcl/sbcl.mk
+          done < ~/build/binary/lib/sbcl/sbcl.mk
           $CC $CFLAGS -Wno-builtin-declaration-mismatch -o /tmp/linkage-table-prelink-info-override.o -c /tmp/linkage-table-prelink-info-override.c
-          $CC -no-pie -static $LINKFLAGS -o /tmp/static-sbcl /usr/local/lib/sbcl/$LIBSBCL /tmp/linkage-table-prelink-info-override.o -lgmp $LIBS
+          $CC -no-pie -static $LINKFLAGS -o /tmp/static-sbcl ~/build/binary/lib/sbcl/$LIBSBCL /tmp/linkage-table-prelink-info-override.o -lgmp $LIBS
 
       # STEP 3: Setup :toplevel
       - name: Dump
@@ -87,3 +85,8 @@ jobs:
           path: |
             /tmp
           if-no-files-found: error
+
+      - run: |
+          apk add --no-cache imagemagick-dev sdl2-dev
+          pkg-config --list-all | sort
+
