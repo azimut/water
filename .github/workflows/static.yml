@@ -32,7 +32,7 @@ jobs:
 
       - name: Build SBCL 2.1.10
         run: |
-          cd build/
+          cd ~/build/
           git clone -b static-executable-v2-2.1.10 --depth=1 https://github.com/daewok/sbcl
           cd sbcl/
           sh make.sh --fancy --with-sb-linkable-runtime --with-sb-prelink-linkage-table
