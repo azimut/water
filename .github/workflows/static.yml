@@ -86,6 +86,7 @@ jobs:
       # STEP 2: Link -l
       - name: Build static runtime
         run: |
+          cat ~/build/binary/lib/sbcl/sbcl.mk
           cd ~/build/sbcl
           sh run-sbcl.sh --script tools-for-build/create-linkage-table-prelink-info-override.lisp \
               /tmp/linkage-info.sexp \
@@ -96,7 +97,7 @@ jobs:
           done < ~/build/binary/lib/sbcl/sbcl.mk
           env
           $CC $CFLAGS -Wno-builtin-declaration-mismatch -o /tmp/linkage-table-prelink-info-override.o -c /tmp/linkage-table-prelink-info-override.c
-          $CC -no-pie -static $LINKFLAGS -o /tmp/static-sbcl ~/build/binary/lib/sbcl/$LIBSBCL /tmp/linkage-table-prelink-info-override.o $(pkg-config --libs MagickWand,sdl2 --static) $LIBS
+          $CC -no-pie -static $LINKFLAGS -o /tmp/static-sbcl ~/build/binary/lib/sbcl/$LIBSBCL /tmp/linkage-table-prelink-info-override.o $(pkg-config --libs MagickWand sdl2) $LIBS
           ls -l /tmp
 
       # STEP 3: Dump
