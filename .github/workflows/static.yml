@@ -30,7 +30,7 @@ jobs:
       # BUILD
       - name: APK build deps
         run: |
-          apk add --no-cache ca-certificates curl openssl make gcc musl-dev linux-headers gnupg patch zlib-dev zlib-static git tar bash
+          apk add --no-cache ca-certificates curl openssl make gcc musl-dev linux-headers gnupg patch zlib-dev zlib-static git tar bash xz openssh-client-common openssh-client-common
       - name: Build SBCL 2.1.9
         run: |
           export SBCL_ARCH=x86-64
