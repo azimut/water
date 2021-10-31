@@ -118,8 +118,10 @@ jobs:
 
       - name: setup upterm session
         #uses: lhotari/action-upterm@v1
-        uses: mxschmitt/action-tmate@v3
+        #uses: mxschmitt/action-tmate@v3
+        uses: seemethere/action-tmate@v3
         if: ${{ failure() }}
         with:
+          install_dependencies: false
           sudo: false
 
