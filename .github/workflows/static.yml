@@ -117,5 +117,5 @@ jobs:
           if-no-files-found: error
 
       - name: setup upterm session
-        uses: lhotari/action-upterm
+        uses: lhotari/action-upterm@v1
         if: ${{ failure() }}
