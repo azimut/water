@@ -98,7 +98,7 @@ jobs:
           done < ~/build/binary/lib/sbcl/sbcl.mk
           env
           $CC $CFLAGS -Wno-builtin-declaration-mismatch -o /tmp/linkage-table-prelink-info-override.o -c /tmp/linkage-table-prelink-info-override.c
-          apk add --no-cache $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-dev' | sort | uniq | sed 's#$#-dev#g')
+          apk add --no-cache --force-broken-world $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-dev' | sort | uniq | sed 's#$#-dev#g')
           $CC -no-pie -static $LINKFLAGS -o /tmp/static-sbcl ~/build/binary/lib/sbcl/$LIBSBCL /tmp/linkage-table-prelink-info-override.o -pthread -lSDL2 -lrt -lm -pthread -Wl,--no-undefined $(pkg-config --libs MagickWand --static) $LIBS
           ls -l /tmp
 
