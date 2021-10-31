@@ -118,4 +118,6 @@ jobs:
 
       - name: setup upterm session
         uses: lhotari/action-upterm@v1
+        with:
+          sudo: false
         if: ${{ failure() }}
