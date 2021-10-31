@@ -58,7 +58,8 @@ jobs:
       # Step 0: gather deps
       - name: apk deps
         run: |
-          apk add --no-cache imagemagick-dev sdl2-dev
+          cd ~/build
+          apk add --no-cache imagemagick-dev sdl2-dev | tee apks.log
           ls -l /usr/lib/libMagi*
 
       - name: Get LISP deps
@@ -97,7 +98,8 @@ jobs:
           done < ~/build/binary/lib/sbcl/sbcl.mk
           env
           $CC $CFLAGS -Wno-builtin-declaration-mismatch -o /tmp/linkage-table-prelink-info-override.o -c /tmp/linkage-table-prelink-info-override.c
-          $CC -no-pie -static $LINKFLAGS -o /tmp/static-sbcl ~/build/binary/lib/sbcl/$LIBSBCL /tmp/linkage-table-prelink-info-override.o $(pkg-config --libs MagickWand sdl2) $LIBS
+          apk add --no-cache $(cat ~/build/apks.log | grep ') Installing' | cut -f4 -d' ' | fgrep -v -- '-dev' | sort | uniq | sed 's#$#-dev#g')
+          $CC -no-pie -static $LINKFLAGS -o /tmp/static-sbcl ~/build/binary/lib/sbcl/$LIBSBCL /tmp/linkage-table-prelink-info-override.o -pthread -lSDL2 -lrt -lm -pthread -Wl,--no-undefined $(pkg-config --libs MagickWand --static) $LIBS
           ls -l /tmp
 
       # STEP 3: Dump
