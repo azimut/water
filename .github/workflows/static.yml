@@ -100,7 +100,7 @@ jobs:
           done < ~/build/binary/lib/sbcl/sbcl.mk
           env
           $CC $CFLAGS -Wno-builtin-declaration-mismatch -o /tmp/linkage-table-prelink-info-override.o -c /tmp/linkage-table-prelink-info-override.c
-          $CC -no-pie -static $LINKFLAGS -o /tmp/static-sbcl ~/build/binary/lib/sbcl/$LIBSBCL /tmp/linkage-table-prelink-info-override.o $(pkg-config --libs MagickWand,sdl2 --static) $LIBS
+          $CC -no-pie -static $LINKFLAGS -o /tmp/static-sbcl ~/build/binary/lib/sbcl/$LIBSBCL /tmp/linkage-table-prelink-info-override.o $(pkg-config --libs MagickWand,sdl2,gl --static) $LIBS
           ls -l /tmp
 
       # STEP 3: Dump
