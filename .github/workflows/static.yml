@@ -82,7 +82,7 @@ jobs:
             --eval '(push :skipgl *features*)' \
             --eval '(ql:quickload :deploy)' \
             --eval '(require :asdf)' \
-            --load /__w/water/water/water.asd \
+            --load "$RUNNER_WORKSPACE"/water/water.asd \
             --eval '(ql:quickload :water)' \
             --load tools-for-build/dump-linkage-info.lisp \
             --eval '(sb-dump-linkage-info:dump-to-file "/tmp/linkage-info.sexp")' \
