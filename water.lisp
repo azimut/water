@@ -15,6 +15,7 @@
   (unless *bs*
     (setf *bs*  (make-buffer-stream NIL :primitive :points)))
   ;; Draw
+  #+nil
   (draw-a-few-lines))
 
 (defun slynk-hook ()
@@ -22,6 +23,7 @@
   (slynk-mrepl::send-prompt (find (bt:current-thread) (slynk::channels)
                                   :key #'slynk::channel-thread)))
 
+#+nil
 (defun draw-a-few-lines (&optional (width 256) (height 256))
   (magick:with-magick-wand
       (wand :create width height :comp ((random 255) (random 255) (random 255)))
@@ -46,11 +48,15 @@
   (setf (resolution (current-viewport)) (surface-resolution (current-surface)))
   (clear)
   (map-g #'water-pipe *bs*
-         :image *sam*)
+         ;;:image *sam*
+         )
   (swap))
 
+#+nil
 (defun-g water-frag ((uv :vec2) &uniform (image :sampler-2d))
   (texture image uv))
+(defun-g water-frag ((uv :vec2))
+  (v! uv 1 0))
 (defpipeline-g water-pipe (:points)
   :fragment (water-frag :vec2))
 
@@ -64,7 +70,7 @@
     (cepl-utils:with-setf (depth-test-function) #'<=
       (loop :while (and running (not (shutting-down-p))) :do
         (continuable
-          (step-host)
-          (draw)))))
+         (step-host)
+         (draw)))))
   (defun stop () (setf running nil)))
 

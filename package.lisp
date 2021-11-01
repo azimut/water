@@ -5,7 +5,7 @@
         #:cepl
         #:rtg-math
         #:vari
-        #:lisp-magick-wand
+        ;;#:lisp-magick-wand
         #:cepl.skitter
         #:livesupport)
   (:import-from #:temporal-functions

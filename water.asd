@@ -11,7 +11,7 @@
   :depends-on (#:cepl
                #:cepl.sdl2
                #:cepl.skitter.sdl2
-               #:lisp-magick-wand
+               ;;#:lisp-magick-wand
                #:livesupport
                #:rtg-math.vari
                #:temporal-functions)
