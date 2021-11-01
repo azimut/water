@@ -12,7 +12,7 @@ jobs:
 
       - name: APK build deps
         run: |
-          apk add --no-cache ca-certificates curl openssl make gcc musl-dev linux-headers gnupg patch zlib-dev zlib-static git tar bash xz openssh-client-common openssh-client-common zstd
+          apk add --no-cache ca-certificates curl openssl make gcc musl-dev linux-headers gnupg patch zlib-dev zlib-static git tar bash xz openssh-client-common zstd
 
       # CACHE
       - run: mkdir -pv ~/build
@@ -56,25 +56,25 @@ jobs:
                --eval '(ql-dist:install-dist "http://bodge.borodust.org/dist/org.borodust.bodge.txt" :replace t :prompt nil)'
         if: steps.cache.outputs.cache-hit != 'true'
 
-      - name: Build SDL 2.0.12
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          cd ~/build
-          wget https://www.libsdl.org/release/SDL2-2.0.12.tar.gz
-          tar xzf SDL2-2.0.12.tar.gz
-          cd SDL2-2.0.12
-          ./configure
-          make
-      - name: Install SDL 2.0.12
-        run: |
-          cd ~/build/SDL2-2.0.12
-          make install prefix=/usr
+      # - name: Build SDL 2.0.12
+      #   if: steps.cache.outputs.cache-hit != 'true'
+      #   run: |
+      #     cd ~/build
+      #     wget https://www.libsdl.org/release/SDL2-2.0.12.tar.gz
+      #     tar xzf SDL2-2.0.12.tar.gz
+      #     cd SDL2-2.0.12
+      #     ./configure
+      #     make
+      # - name: Install SDL 2.0.12
+      #   run: |
+      #     cd ~/build/SDL2-2.0.12
+      #     make install prefix=/usr
 
       # Step 0: gather deps
       - name: apk deps
         run: |
           cd ~/build
-          apk add --no-cache imagemagick-dev imagemagick-static mesa | tee apks.log
+          apk add --no-cache imagemagick-dev imagemagick-static sdl2-dev | tee apks.log
           apk add --no-cache --force-broken-world $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-dev' | sort | uniq | sed 's#$#-dev#g')
           apk add --no-cache --force-broken-world bzip2-static $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-dev' | fgrep -v -- '-static' | sort | uniq | sed 's#$#-static#g')
           cd /usr/lib
@@ -136,7 +136,7 @@ jobs:
             /tmp
           if-no-files-found: error
 
-      - name: setup upterm session
+      - name: DEBUG SHELL
         #uses: lhotari/action-upterm@v1
         #uses: mxschmitt/action-tmate@v3
         uses: seemethere/action-tmate@skip_dependency_installation
