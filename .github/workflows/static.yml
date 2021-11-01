@@ -77,21 +77,23 @@ jobs:
           apk add --no-cache imagemagick-dev imagemagick-static mesa | tee apks.log
           apk add --no-cache --force-broken-world $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-dev' | sort | uniq | sed 's#$#-dev#g')
           apk add --no-cache --force-broken-world bzip2-static $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-dev' | fgrep -v -- '-static' | sort | uniq | sed 's#$#-static#g')
-          ls -l /usr/lib/libMagi*
+          cd /usr/lib
+          ln -s libMagickWand-7.Q16HDRI.so libMagickWand.so
 
       - name: Get LISP deps
         run: |
-          cd /usr/lib
-          ln -s libMagickWand-7.Q16HDRI.so libMagickWand.so
           cd ~/quicklisp/local-projects/
           (test -d lisp-magick-wand) || git clone --depth=1 https://github.com/ruricolist/lisp-magick-wand/
           ( cd lisp-magick-wand/ ; git pull )
+          (test -d cl-opengl) || git clone -b skipgl --depth=1 https://github.com/azimut/cl-opengl/
+          ( cd cl-opengl/ ; git pull )
 
       # STEP 1: Dump after (require)
       - name: Load into an image
         run: |
           cd ~/build/sbcl
           sh run-sbcl.sh --non-interactive \
+            --eval '(push :skipgl *features*)' \
             --eval '(ql:quickload :deploy)' \
             --eval '(require :asdf)' \
             --load /__w/water/water/water.asd \
@@ -115,7 +117,7 @@ jobs:
           done < ~/build/binary/lib/sbcl/sbcl.mk
           env
           $CC $CFLAGS -Wno-builtin-declaration-mismatch -o /tmp/linkage-table-prelink-info-override.o -c /tmp/linkage-table-prelink-info-override.c
-          $CC -no-pie -static $LINKFLAGS -o /tmp/static-sbcl ~/build/binary/lib/sbcl/$LIBSBCL /tmp/linkage-table-prelink-info-override.o $(pkg-config --libs MagickWand,sdl2,gl --static) $LIBS
+          $CC -no-pie -static $LINKFLAGS -o /tmp/static-sbcl ~/build/binary/lib/sbcl/$LIBSBCL /tmp/linkage-table-prelink-info-override.o $(pkg-config --libs MagickWand,sdl2 --static) $LIBS
           ls -l /tmp
 
       # STEP 3: Dump
