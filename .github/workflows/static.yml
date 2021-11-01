@@ -9,6 +9,11 @@ jobs:
       image: clfoundation/sbcl:alpine3.14
     steps:
       - uses: actions/checkout@v2
+
+      - name: APK build deps
+        run: |
+          apk add --no-cache ca-certificates curl openssl make gcc musl-dev linux-headers gnupg patch zlib-dev zlib-static git tar bash xz openssh-client-common openssh-client-common zstd
+
       # CACHE
       - run: mkdir -pv ~/build
       - name: Get Current Month
@@ -27,9 +32,6 @@ jobs:
           key: "${{ steps.current-month.outputs.value }}-${{ env.cache-name }}-${{ runner.os }}"
 
       # BUILD
-      - name: APK build deps
-        run: |
-          apk add --no-cache ca-certificates curl openssl make gcc musl-dev linux-headers gnupg patch zlib-dev zlib-static git tar bash xz openssh-client-common openssh-client-common
       - name: Build SBCL 2.1.9
         run: |
           export SBCL_ARCH=x86-64
