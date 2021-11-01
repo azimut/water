@@ -106,8 +106,7 @@ jobs:
               -o /tmp/static-sbcl \
               ~/build/binary/lib/sbcl/$LIBSBCL \
               /tmp/linkage-table-prelink-info-override.o \
-              $(sdl2-config --static-libs) \
-              $LIBS
+              $(pkg-config --libs --static sdl2,zlib)
           ls -l /tmp
 
       - name: STEP 3 - Run static-sbcl, with .core, and dump final binary
