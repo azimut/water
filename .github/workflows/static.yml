@@ -13,8 +13,7 @@ jobs:
       - run: mkdir -pv ~/build
       - name: Get Current Month
         id: current-month
-        run: |
-          echo "::set-output name=value::$(date -u "+%Y-%m")"
+        run: echo "::set-output name=value::$(date -u "+%Y-%m")"
       - name: Cache SBCL 2.1.9 Setup
         id: cache
         uses: actions/cache@v2
@@ -73,7 +72,7 @@ jobs:
       - name: apk deps
         run: |
           cd ~/build
-          apk add --no-cache imagemagick-dev imagemagick-static | tee apks.log
+          apk add --no-cache imagemagick-dev imagemagick-static mesa | tee apks.log
           apk add --no-cache --force-broken-world $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-dev' | sort | uniq | sed 's#$#-dev#g')
           apk add --no-cache --force-broken-world bzip2-static $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-dev' | fgrep -v -- '-static' | sort | uniq | sed 's#$#-static#g')
           ls -l /usr/lib/libMagi*
