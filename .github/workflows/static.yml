@@ -74,8 +74,7 @@ jobs:
           (test -d cl-opengl) || git clone -b skipgl --depth=1 https://github.com/azimut/cl-opengl/
           ( cd cl-opengl/ ; git pull )
 
-      # STEP 1: Dump after (require)
-      - name: Load into an image
+      - name: STEP 1 - Dump .core and .sexp
         run: |
           cd ~/build/sbcl
           sh run-sbcl.sh --non-interactive \
@@ -89,10 +88,8 @@ jobs:
             --eval '(sb-ext:save-lisp-and-die "/tmp/sb-gmp-tester.core")'
           ls -l /tmp
 
-      # STEP 2: Link -l
-      - name: Build static runtime
+      - name: STEP 2 - Compile .o and static-sbcl
         run: |
-          cat ~/build/binary/lib/sbcl/sbcl.mk
           cd ~/build/sbcl
           sh run-sbcl.sh --script tools-for-build/create-linkage-table-prelink-info-override.lisp \
               /tmp/linkage-info.sexp \
@@ -101,13 +98,18 @@ jobs:
           while read l; do \
             echo "$l"; eval "export ${l%%=*}=\"${l#*=}\""; \
           done < ~/build/binary/lib/sbcl/sbcl.mk
-          env
-          $CC $CFLAGS -Wno-builtin-declaration-mismatch -o /tmp/linkage-table-prelink-info-override.o -c /tmp/linkage-table-prelink-info-override.c
-          $CC -no-pie -static $LINKFLAGS -o /tmp/static-sbcl ~/build/binary/lib/sbcl/$LIBSBCL /tmp/linkage-table-prelink-info-override.o $(pkg-config --libs sdl2 --static) $LIBS
+          env | sort
+          TMPPKG="$(pkg-config --libs sdl2 --static)"
+          $CC $CFLAGS -Wno-builtin-declaration-mismatch \
+              -o /tmp/linkage-table-prelink-info-override.o \
+              -c /tmp/linkage-table-prelink-info-override.c
+          $CC -no-pie -static $LINKFLAGS \
+              -o /tmp/static-sbcl \
+              ~/build/binary/lib/sbcl/$LIBSBCL \
+              /tmp/linkage-table-prelink-info-override.o $TMPPKG $LIBS
           ls -l /tmp
 
-      # STEP 3: Dump
-      - name: Setup :toplevel
+      - name: STEP 3 - Run static-sbcl, with .core, and dump final binary
         run: |
           /tmp/static-sbcl \
             --core /tmp/sb-gmp-tester.core \
