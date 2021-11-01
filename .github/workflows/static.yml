@@ -58,7 +58,7 @@ jobs:
       - name: Build SDL 2.0.12
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          cd ~/Downloads
+          cd ~/build
           wget https://www.libsdl.org/release/SDL2-2.0.12.tar.gz
           tar xzf SDL2-2.0.12.tar.gz
           cd SDL2-2.0.12
@@ -66,7 +66,7 @@ jobs:
           make
       - name: Install SDL 2.0.12
         run: |
-          cd ~/Downloads/SDL2-2.0.12
+          cd ~/build/SDL2-2.0.12
           make install
 
       # Step 0: gather deps
