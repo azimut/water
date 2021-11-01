@@ -56,20 +56,6 @@ jobs:
                --eval '(ql-dist:install-dist "http://bodge.borodust.org/dist/org.borodust.bodge.txt" :replace t :prompt nil)'
         if: steps.cache.outputs.cache-hit != 'true'
 
-      # - name: Build SDL 2.0.12
-      #   if: steps.cache.outputs.cache-hit != 'true'
-      #   run: |
-      #     cd ~/build
-      #     wget https://www.libsdl.org/release/SDL2-2.0.12.tar.gz
-      #     tar xzf SDL2-2.0.12.tar.gz
-      #     cd SDL2-2.0.12
-      #     ./configure
-      #     make
-      # - name: Install SDL 2.0.12
-      #   run: |
-      #     cd ~/build/SDL2-2.0.12
-      #     make install prefix=/usr
-
       # Step 0: gather deps
       - name: apk deps
         run: |
