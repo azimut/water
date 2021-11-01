@@ -68,7 +68,7 @@ jobs:
       - name: Install SDL 2.0.12
         run: |
           cd ~/build/SDL2-2.0.12
-          make install --prefix=/usr/
+          make install prefix=/usr
 
       # Step 0: gather deps
       - name: apk deps
