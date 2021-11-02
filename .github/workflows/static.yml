@@ -60,11 +60,25 @@ jobs:
       - name: apk deps
         run: |
           cd ~/build
-          apk add --no-cache imagemagick-dev imagemagick-static sdl2-dev | tee apks.log
+          apk add --no-cache libpng lcms2 libjpeg-turbo-dev libtool fontconfig freetype sdl2-dev | tee apks.log
           apk add --no-cache --force-broken-world $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-dev' | sort | uniq | sed 's#$#-dev#g')
           apk add --no-cache --force-broken-world bzip2-static $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-dev' | fgrep -v -- '-static' | sort | uniq | sed 's#$#-static#g')
           cd /usr/lib
           ln -s libMagickWand-7.Q16HDRI.so libMagickWand.so
+
+      - name: Build ImageMagick 6.9.12-28
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          cd ~/build
+          wget https://mirror.dogado.de/imagemagick/ImageMagick-6.9.12-28.tar.gz
+          tar xzf ImageMagick-6.9.12-28.tar.gz
+          cd ImageMagick-6.9.12-28
+          ./configure --with-png --enable-static --disable-openmp --prefix=/usr --with-threads
+          make -j1
+      - name: Install ImageMagick 6.9.12-28
+        run: |
+          cd ~/build/ImageMagick-6.9.12-28
+          make install
 
       - name: Get LISP deps
         run: |
