@@ -71,13 +71,13 @@ jobs:
           wget https://www.libsdl.org/release/SDL2-2.0.12.tar.gz
           tar xzf SDL2-2.0.12.tar.gz
           cd SDL2-2.0.12
-          ./configure
+          ./configure --prefix=/usr --disable-input-tslib
           make
       - name: Install SDL 2.0.12
         run: |
           apk del --force-broken-world sdl2 sdl2-dev
           cd ~/build/SDL2-2.0.12
-          make install prefix=/usr
+          make install
 
       - name: Build ImageMagick 6.9.12-28
         if: steps.cache.outputs.cache-hit != 'true'
