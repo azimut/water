@@ -62,7 +62,7 @@ jobs:
           cd ~/build
           apk add --no-cache libwebp tiff libpng lcms2 libjpeg-turbo-dev libtool fontconfig freetype sdl2-dev | tee apks.log
           apk add --no-cache --force-broken-world $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-dev' | sort | uniq | sed 's#$#-dev#g')
-          apk add --no-cache --force-broken-world bzip2-static $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-dev' | fgrep -v -- '-static' | sort | uniq | sed 's#$#-static#g')
+          apk add --no-cache --force-broken-world bzip2-static $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-static' | sort | uniq | sed 's#$#-static#g')
 
       - name: Build ImageMagick 6.9.12-28
         if: steps.cache.outputs.cache-hit != 'true'
@@ -121,9 +121,9 @@ jobs:
               -o /tmp/static-sbcl \
               ~/build/binary/lib/sbcl/$LIBSBCL \
               /tmp/linkage-table-prelink-info-override.o \
-              $(pkg-config --libs --static MagickWand) $LIBS -lpng16 -lz -lzstd -ltiff -ljpeg -lwebp
+              $(pkg-config --libs --static MagickWand) $LIBS -lpng16 -lz -lzstd -ltiff -ljpeg -lwebp -llcms2 -llzma -lxml2 -lfontconfig -lfreetype
           ls -l /tmp
-
+      # fontconfig freetype jng lcms lzma xml
       - name: STEP 3 - Run static-sbcl, with .core, and dump final binary
         run: |
           /tmp/static-sbcl \
