@@ -99,6 +99,7 @@ jobs:
             --eval '(require :asdf)' \
             --load "$RUNNER_WORKSPACE"/water/water.asd \
             --eval '(ql:quickload :water)' \
+            --eval '(pop uiop:*image-restore-hook*)' \
             --load tools-for-build/dump-linkage-info.lisp \
             --eval '(sb-dump-linkage-info:dump-to-file "/tmp/linkage-info.sexp")' \
             --eval '(sb-ext:save-lisp-and-die "/tmp/sb-gmp-tester.core")'
