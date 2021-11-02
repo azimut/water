@@ -83,7 +83,7 @@ jobs:
       - name: Get LISP deps
         run: |
           cd ~/quicklisp/local-projects/
-          (test -d lisp-magick-wand) || git clone --depth=1 https://github.com/ruricolist/lisp-magick-wand/
+          (test -d lisp-magick-wand) || git clone --depth=1 https://github.com/azimut/lisp-magick-wand/
           ( cd lisp-magick-wand/ ; git pull )
           (test -d cl-opengl) || git clone -b skipgl --depth=1 https://github.com/azimut/cl-opengl/
           ( cd cl-opengl/ ; git pull )
