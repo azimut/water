@@ -87,6 +87,8 @@ jobs:
           ( cd lisp-magick-wand/ ; git pull )
           (test -d cl-opengl) || git clone -b skipgl --depth=1 https://github.com/azimut/cl-opengl/
           ( cd cl-opengl/ ; git pull )
+          (test -d cffi) || git clone -b pr/reload-on-restart --depth=1 https://github.com/ralt/cffi/
+          ( cd cffi/ ; git pull )
 
       - name: STEP 1 - Dump .core and .sexp
         run: |
