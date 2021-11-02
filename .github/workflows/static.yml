@@ -96,7 +96,7 @@ jobs:
         run: |
           cd ~/build/sbcl
           sh run-sbcl.sh --non-interactive \
-            --eval '(load "quicklisp.lisp")' \
+            --load ~/quicklisp/setup.lisp \
             --eval '(push :skipgl *features*)' \
             --eval '(ql:quickload :deploy)' \
             --eval '(require :asdf)' \
