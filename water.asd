@@ -8,12 +8,15 @@
   :build-operation "deploy-op"
   :build-pathname "water"
   :entry-point "water:start"
-  :depends-on (#:cepl
-               #:cepl.sdl2
-               #:cepl.skitter.sdl2
-               ;;#:lisp-magick-wand
-               #:livesupport
-               #:rtg-math.vari
-               #:temporal-functions)
+  :depends-on (;;#:cepl
+               ;;#:cepl.sdl2
+               ;;#:cepl.skitter.sdl2
+               #:lisp-magick-wand
+               ;;#:livesupport
+               ;;#:rtg-math.vari
+               ;;#:temporal-functions
+               )
   :components ((:file "package")
-               (:file "water")))
+               ;;(:file "water")
+               (:file "fire")
+               ))
