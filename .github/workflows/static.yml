@@ -71,7 +71,7 @@ jobs:
           wget https://mirror.dogado.de/imagemagick/ImageMagick-6.9.12-28.tar.gz
           tar xzf ImageMagick-6.9.12-28.tar.gz
           cd ImageMagick-6.9.12-28
-          ./configure --with-png --enable-static --disable-openmp --prefix=/usr --with-threads
+          ./configure --with-png --enable-static --disable-openmp --prefix=/usr --with-threads --without-webp
           make -j1
       - name: Install ImageMagick 6.9.12-28
         run: |
