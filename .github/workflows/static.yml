@@ -60,7 +60,7 @@ jobs:
       - name: apk deps
         run: |
           cd ~/build
-          apk add --no-cache expat expat-dev expat-static libwebp zstd-static bzip2-dev bzip2-static tiff libpng lcms2 libjpeg-turbo-dev libtool fontconfig freetype sdl2-dev | tee apks.log
+          apk add --no-cache expat brotli-dev brotli-static woff2-dev libwoff2common expat-dev expat-static libwebp zstd-static bzip2-dev bzip2-static tiff libpng lcms2 libjpeg-turbo-dev libtool fontconfig freetype sdl2-dev | tee apks.log
           apk add --no-cache --force-broken-world $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-dev' | sort | uniq | sed 's#$#-dev#g')
           apk add --no-cache --force-broken-world bzip2-static $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-static' | sort | uniq | sed 's#$#-static#g')
 
@@ -121,7 +121,7 @@ jobs:
               -o /tmp/static-sbcl \
               ~/build/binary/lib/sbcl/$LIBSBCL \
               /tmp/linkage-table-prelink-info-override.o \
-              $(pkg-config --libs --static MagickWand,fontconfig) $LIBS -lpng16 -lz -lzstd -ltiff -ljpeg -lwebp -llcms2 -llzma -lxml2 -lfontconfig -lfreetype -lbz2 -lwoff2common -lexpat
+              $(pkg-config --libs --static MagickWand,fontconfig) $LIBS -lpng16 -lz -lzstd -ltiff -ljpeg -lwebp -llcms2 -llzma -lxml2 -lfontconfig -lfreetype -lbz2 -lexpat
           ls -l /tmp
       # fontconfig freetype jng lcms lzma xml
       # freetype jng jpeg lcms lzma png tiff webp xml zlib zstd
