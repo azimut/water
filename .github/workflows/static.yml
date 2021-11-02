@@ -23,7 +23,7 @@ jobs:
         id: cache
         uses: actions/cache@v2
         env:
-          cache-name: cache-alpine-static-sbcl-2.1.9
+          cache-name: cache-alpine-static-sbcl-2.1.9-nuke
         with:
           path: |
             ~/build
