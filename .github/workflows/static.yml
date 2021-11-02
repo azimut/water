@@ -47,7 +47,8 @@ jobs:
       - name: Install quicklisp
         run: |
           cd ~/build/sbcl
-          wget -c https://beta.quicklisp.org/quicklisp.lisp
+          rm -f quicklisp.lisp
+          wget https://beta.quicklisp.org/quicklisp.lisp
           sh run-sbcl.sh --non-interactive \
                --eval '(load "quicklisp.lisp")' \
                --eval '(quicklisp-quickstart:install)' \
