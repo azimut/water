@@ -89,6 +89,8 @@ jobs:
           ( cd cl-opengl/ ; git pull )
           (test -d cffi) || git clone -b pr/reload-on-restart --depth=1 https://github.com/ralt/cffi/
           ( cd cffi/ ; git pull )
+          (test -d cl-sdl2) || git clone --depth=1 https://github.com/azimut/cl-sdl2/
+          ( cd cl-sdl2/ ; git pull )
 
       - name: STEP 1 - Dump .core and .sexp
         run: |
@@ -117,14 +119,14 @@ jobs:
           done < ~/build/binary/lib/sbcl/sbcl.mk
           env | sort
           set -x
-          $CC $CFLAGS -Wno-builtin-declaration-mismatch \
+          $CC $CFLAGS $(sdl2-config --cflags) -Wno-builtin-declaration-mismatch \
               -o /tmp/linkage-table-prelink-info-override.o \
               -c /tmp/linkage-table-prelink-info-override.c
           $CC -no-pie -static $LINKFLAGS \
               -o /tmp/static-sbcl \
               ~/build/binary/lib/sbcl/$LIBSBCL \
               /tmp/linkage-table-prelink-info-override.o \
-              $(pkg-config --libs --static MagickWand,fontconfig) $LIBS -lpng16 -lz -lzstd -ltiff -ljpeg -lwebp -llcms2 -llzma -lxml2 -lfontconfig -lfreetype -lbz2 -lexpat
+              $(pkg-config --libs --static MagickWand,fontconfig,sdl2) $LIBS -lpng16 -lz -lzstd -ltiff -ljpeg -lwebp -llcms2 -llzma -lxml2 -lfontconfig -lfreetype -lbz2 -lexpat
           ls -l /tmp
       # fontconfig freetype jng lcms lzma xml
       # freetype jng jpeg lcms lzma png tiff webp xml zlib zstd
