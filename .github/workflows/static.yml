@@ -63,8 +63,6 @@ jobs:
           apk add --no-cache libpng lcms2 libjpeg-turbo-dev libtool fontconfig freetype sdl2-dev | tee apks.log
           apk add --no-cache --force-broken-world $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-dev' | sort | uniq | sed 's#$#-dev#g')
           apk add --no-cache --force-broken-world bzip2-static $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-dev' | fgrep -v -- '-static' | sort | uniq | sed 's#$#-static#g')
-          cd /usr/lib
-          ln -s libMagickWand-7.Q16HDRI.so libMagickWand.so
 
       - name: Build ImageMagick 6.9.12-28
         if: steps.cache.outputs.cache-hit != 'true'
@@ -79,6 +77,8 @@ jobs:
         run: |
           cd ~/build/ImageMagick-6.9.12-28
           make install
+          cd /usr/lib
+          ln -s libMagickWand-6.Q16.so.7.0.0 libMagickWand.so
 
       - name: Get LISP deps
         run: |
