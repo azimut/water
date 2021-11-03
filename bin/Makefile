@@ -2,22 +2,21 @@
 
 water:
 ifeq ($(OS),Windows_NT)
-	sbcl --disable-debugger \
+	sbcl --non-interactive \
              --eval '(load "~/quicklisp/setup.lisp")' \
              --eval '(ql:quickload :deploy)' \
              --load ../water.asd \
              --eval '(ql:quickload :water)' \
-             --eval '(asdf:make :water :force t)' \
-             --quit
+             --eval '(asdf:make :water :force t)'
 else
-	sbcl --disable-debugger \
+	sbcl --non-interactive \
              --eval '(load "~/quicklisp/setup.lisp")' \
              --eval '(ql:quickload :deploy)' \
              --load ../water.asd \
              --eval '(ql:quickload :water)' \
              --eval '(deploy:define-library CL-OPENGL-BINDINGS::OPENGL :dont-deploy t)' \
-             --eval '(asdf:make :water :force t)' \
-             --quit
+             --eval '(deploy:define-library (quote libz) :path "/lib/libz.so")' \
+             --eval '(asdf:make :water :force t)'
 endif
 strip:
 	find . -name '*.so*' -exec strip {} \;
