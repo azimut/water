@@ -12,7 +12,7 @@ jobs:
 
       - name: APK build deps
         run: |
-          apk add --no-cache ca-certificates curl openssl make gcc musl-dev linux-headers gnupg patch zlib-dev zlib-static git tar bash xz openssh-client-common zstd
+          apk add --no-cache ca-certificates curl openssl make gcc musl-dev linux-headers gnupg patch zlib-dev zlib-static git tar bash xz openssh-client-common zstd musl-dbg
 
       # CACHE
       - run: mkdir -pv ~/build
