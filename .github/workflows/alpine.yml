@@ -32,7 +32,7 @@ jobs:
           key: "${{ steps.current-month.outputs.value }}-${{ env.cache-name }}-${{ runner.os }}"
       - name: Restore Path To Cached Files
         run: |
-          echo $HOME/build/binary >> $GITHUB_PATH
+          echo $HOME/build/binary/bin >> $GITHUB_PATH
         if: steps.cache.outputs.cache-hit == 'true'
 
       # BUILD
@@ -104,7 +104,7 @@ jobs:
 
       - name: Build Binary
         run: |
-          export PATH="$HOME/sbcl/bin:${PATH}"
+          export PATH="$HOME/build/binary/bin:${PATH}"
           cd bin/
           make water
           make tar
