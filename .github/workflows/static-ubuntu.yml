@@ -71,9 +71,9 @@ jobs:
           make
       - name: Install SDL 2.0.12
         run: |
-          sudo apt-get remove -y libsdl2-dev
+          sudo apt-get remove -y '*sdl2*'
           cd ~/build/SDL2-2.0.12
-          make install
+          sudo make install
 
       - name: Build ImageMagick 6.9.12-28
         if: steps.cache.outputs.cache-hit != 'true'
@@ -86,11 +86,11 @@ jobs:
           make -j1
       - name: Install ImageMagick 6.9.12-28
         run: |
-          sudo apt-get remove -y libmagickwand-dev imagemagick
+          sudo apt-get remove -y 'libmagickwand*'
           cd ~/build/ImageMagick-6.9.12-28
-          make install
+          sudo make install
           cd /usr/lib
-          ls -l libMagickWan*
+          ln -s libMagickWand-6.Q16.so.7.0.0 libMagickWand.so
 
       - name: Get LISP deps
         run: |
