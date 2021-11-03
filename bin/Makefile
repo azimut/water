@@ -12,7 +12,7 @@ else
 	sbcl --non-interactive \
              --eval '(load "~/quicklisp/setup.lisp")' \
              --eval '(ql:quickload :deploy)' \
-             --eval '(deploy:define-library libz :path "/lib/libz.so")' \
+             --eval '(deploy:define-library deploy::libz :path "/lib/libz.so")' \
              --load ../water.asd \
              --eval '(ql:quickload :water)' \
              --eval '(deploy:define-library CL-OPENGL-BINDINGS::OPENGL :dont-deploy t)' \
