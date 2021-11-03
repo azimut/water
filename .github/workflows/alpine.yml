@@ -98,11 +98,18 @@ jobs:
           (test -d lisp-magick-wand) || git clone --depth=1 https://github.com/azimut/lisp-magick-wand/
           ( cd lisp-magick-wand/ ; git pull )
 
+      - name: Build Binary
+        run: |
+          export PATH="$HOME/sbcl/bin:${PATH}"
+          cd bin/
+          make water
+          make tar
+
       - uses: actions/upload-artifact@v2
         with:
           name: water-alpine-x64
           path: |
-            bin
+            water.tar
           if-no-files-found: error
 
       - name: DEBUG SHELL
