@@ -1,19 +1,17 @@
-name: Static Build
+name: Static Ubuntu Build
 
 on: [push]
 
 jobs:
   container:
-    if: ${{ false }}  # disable for now
-    runs-on: ubuntu-latest
-    container:
-      image: clfoundation/sbcl:alpine3.14
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
 
-      - name: APK build deps
+      - name: APT base deps
         run: |
-          apk add --no-cache ca-certificates curl openssl make gcc musl-dev linux-headers gnupg patch zlib-dev zlib-static git tar bash xz openssh-client-common zstd musl-dbg
+          sudo apt-get update
+          sudo apt-get install -y sbcl
 
       # CACHE
       - run: mkdir -pv ~/build
@@ -24,7 +22,7 @@ jobs:
         id: cache
         uses: actions/cache@v2
         env:
-          cache-name: cache-alpine-static-sbcl-2.1.9-nuke
+          cache-name: cache-ubuntu-static-sbcl-2.1.9-nuke
         with:
           path: |
             ~/build
@@ -58,12 +56,9 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
 
       # Step 0: gather deps
-      - name: apk deps
+      - name: APT deps
         run: |
-          cd ~/build
-          apk add --no-cache expat brotli-dev brotli-static woff2-dev libwoff2common expat-dev expat-static libwebp zstd-static bzip2-dev bzip2-static tiff libpng lcms2 libjpeg-turbo-dev libtool fontconfig freetype sdl2-dev | tee apks.log
-          apk add --no-cache --force-broken-world $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-dev' | sort | uniq | sed 's#$#-dev#g')
-          apk add --no-cache --force-broken-world bzip2-static $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-static' | sort | uniq | sed 's#$#-static#g')
+          sudo apt-get install -y --without-recommends libmagickwand-dev libsdl2-dev
 
       - name: Build SDL 2.0.12
         #if: steps.cache.outputs.cache-hit != 'true'
@@ -72,11 +67,11 @@ jobs:
           wget https://www.libsdl.org/release/SDL2-2.0.12.tar.gz
           tar xzf SDL2-2.0.12.tar.gz
           cd SDL2-2.0.12
-          CFLAGS='-O0 -g' ./configure --prefix=/usr --disable-input-tslib --disable-sdl-dlopen --disable-video-vulkan
+          CFLAGS='-O0 -g' ./configure --prefix=/usr --disable-input-tslib --disable-video-vulkan
           make
       - name: Install SDL 2.0.12
         run: |
-          apk del --force-broken-world sdl2 sdl2-dev
+          apt-get remove -y libsdl2-dev
           cd ~/build/SDL2-2.0.12
           make install
 
@@ -91,10 +86,11 @@ jobs:
           make -j1
       - name: Install ImageMagick 6.9.12-28
         run: |
+          apt-get remove -y libmagickwand-dev imagemagick
           cd ~/build/ImageMagick-6.9.12-28
           make install
           cd /usr/lib
-          ln -s libMagickWand-6.Q16.so.7.0.0 libMagickWand.so
+          ls -l libMagickWan*
 
       - name: Get LISP deps
         run: |
@@ -143,10 +139,11 @@ jobs:
               -o /tmp/static-sbcl \
               ~/build/binary/lib/sbcl/$LIBSBCL \
               /tmp/linkage-table-prelink-info-override.o \
-              $(pkg-config --libs --static MagickWand,fontconfig) $(sdl2-config --static-libs) $LIBS -lpng16 -lz -lzstd -ltiff -ljpeg -lwebp -llcms2 -llzma -lxml2 -lfontconfig -lfreetype -lbz2 -lexpat
+              $(pkg-config --libs --static MagickWand) \
+              $(sdl2-config --static-libs) \
+              $LIBS
+              #-lpng16 -lz -lzstd -ltiff -ljpeg -lwebp -llcms2 -llzma -lxml2 -lfontconfig -lfreetype -lbz2 -lexpat
           ls -l /tmp
-      # fontconfig freetype jng lcms lzma xml
-      # freetype jng jpeg lcms lzma png tiff webp xml zlib zstd
       - name: STEP 3 - Run static-sbcl, with .core, and dump final binary
         run: |
           /tmp/static-sbcl \
@@ -157,17 +154,16 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: sbcl-static-gmp
+          name: sbcl-static-ubuntu-gmp
           path: |
             /tmp
           if-no-files-found: error
 
       - name: DEBUG SHELL
-        #uses: lhotari/action-upterm@v1
-        #uses: mxschmitt/action-tmate@v3
-        uses: seemethere/action-tmate@skip_dependency_installation
-        if: ${{ failure() }}
-        with:
-          install_dependencies: false
-          sudo: false
+        uses: mxschmitt/action-tmate@v3
+        #uses: seemethere/action-tmate@skip_dependency_installation
+        # if: ${{ failure() }}
+        # with:
+        #   install_dependencies: false
+        #   sudo: false
 
