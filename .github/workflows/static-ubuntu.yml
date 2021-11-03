@@ -71,7 +71,7 @@ jobs:
           make
       - name: Install SDL 2.0.12
         run: |
-          apt-get remove -y libsdl2-dev
+          sudo apt-get remove -y libsdl2-dev
           cd ~/build/SDL2-2.0.12
           make install
 
@@ -86,7 +86,7 @@ jobs:
           make -j1
       - name: Install ImageMagick 6.9.12-28
         run: |
-          apt-get remove -y libmagickwand-dev imagemagick
+          sudo apt-get remove -y libmagickwand-dev imagemagick
           cd ~/build/ImageMagick-6.9.12-28
           make install
           cd /usr/lib
