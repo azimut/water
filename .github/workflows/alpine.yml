@@ -30,6 +30,10 @@ jobs:
             ~/quicklisp
             ~/.cache/common-lisp
           key: "${{ steps.current-month.outputs.value }}-${{ env.cache-name }}-${{ runner.os }}"
+      - name: Restore Path To Cached Files
+        run: |
+          echo $HOME/build/binary >> $GITHUB_PATH
+        if: steps.cache.outputs.cache-hit == 'true'
 
       # BUILD
       - name: Build SBCL 2.1.9
@@ -44,7 +48,7 @@ jobs:
 
       - name: First time Install quicklisp
         run: |
-          cd ~/build/sbcl
+          cd ~/build
           wget https://beta.quicklisp.org/quicklisp.lisp
           export PATH="$HOME/build/binary/bin:${PATH}"
           sbcl --non-interactive \
