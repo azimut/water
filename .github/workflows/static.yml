@@ -142,7 +142,7 @@ jobs:
               -o /tmp/static-sbcl \
               ~/build/binary/lib/sbcl/$LIBSBCL \
               /tmp/linkage-table-prelink-info-override.o \
-              $(pkg-config --libs --static MagickWand,fontconfig) $(sdl2-config --static-libsq) $LIBS -lpng16 -lz -lzstd -ltiff -ljpeg -lwebp -llcms2 -llzma -lxml2 -lfontconfig -lfreetype -lbz2 -lexpat
+              $(pkg-config --libs --static MagickWand,fontconfig) $(sdl2-config --static-libs) $LIBS -lpng16 -lz -lzstd -ltiff -ljpeg -lwebp -llcms2 -llzma -lxml2 -lfontconfig -lfreetype -lbz2 -lexpat
           ls -l /tmp
       # fontconfig freetype jng lcms lzma xml
       # freetype jng jpeg lcms lzma png tiff webp xml zlib zstd
