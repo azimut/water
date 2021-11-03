@@ -71,7 +71,7 @@ jobs:
           wget https://www.libsdl.org/release/SDL2-2.0.12.tar.gz
           tar xzf SDL2-2.0.12.tar.gz
           cd SDL2-2.0.12
-          CFLAGS='-O0 -g' ./configure --prefix=/usr --disable-input-tslib
+          CFLAGS='-O0 -g' ./configure --prefix=/usr --disable-input-tslib --disable-sdl-dlopen
           make
       - name: Install SDL 2.0.12
         run: |
