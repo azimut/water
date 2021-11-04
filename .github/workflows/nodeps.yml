@@ -12,7 +12,7 @@ jobs:
 
       - name: APK build deps
         run: |
-          apk add --no-cache ca-certificates curl openssl make gcc musl-dev linux-headers gnupg patch zlib-dev zlib-static git tar bash xz openssh-client-common zstd musl-dbg
+          apk add --no-cache ca-certificates curl openssl make gcc musl-dev linux-headers gnupg patch zlib-dev zlib-static git tar bash xz openssh-client-common zstd
 
       # CACHE
       - run: mkdir -pv ~/build
@@ -66,7 +66,7 @@ jobs:
             --eval '(ql:quickload :water)' \
             --load tools-for-build/dump-linkage-info.lisp \
             --eval '(sb-dump-linkage-info:dump-to-file "/tmp/linkage-info.sexp")' \
-            --eval '(sb-ext:save-lisp-and-die "/tmp/sb-gmp-tester.core")'
+            --eval '(sb-ext:save-lisp-and-die "/tmp/sb-tester.core")'
           ls -l /tmp
 
       - name: STEP 2 - Compile .o and static-sbcl
@@ -94,14 +94,14 @@ jobs:
       - name: STEP 3 - Run static-sbcl, with .core, and dump final binary
         run: |
           /tmp/static-sbcl \
-            --core /tmp/sb-gmp-tester.core \
+            --core /tmp/sb-tester.core \
             --non-interactive \
             --eval '(sb-ext:save-lisp-and-die "/tmp/sbcl-water" :executable t :toplevel (lambda () (water:start)) :compression t)'
           ls -l /tmp
 
       - uses: actions/upload-artifact@v2
         with:
-          name: sbcl-static
+          name: sbcl-water
           if-no-files-found: error
           path: |
             /tmp/sbcl-water
