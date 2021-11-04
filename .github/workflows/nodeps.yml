@@ -1,0 +1,115 @@
+name: Static BASIC Build
+
+on: [push]
+
+jobs:
+  container:
+    runs-on: ubuntu-latest
+    container:
+      image: clfoundation/sbcl:alpine3.14
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: APK build deps
+        run: |
+          apk add --no-cache ca-certificates curl openssl make gcc musl-dev linux-headers gnupg patch zlib-dev zlib-static git tar bash xz openssh-client-common zstd musl-dbg
+
+      # CACHE
+      - run: mkdir -pv ~/build
+      - name: Get Current Month
+        id: current-month
+        run: echo "::set-output name=value::$(date -u '+%Y-%m')"
+      - name: Cache SBCL 2.1.9 Setup
+        id: cache
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-alpine-static-sbcl-2.1.9-basic
+        with:
+          path: |
+            ~/build
+            ~/quicklisp
+            ~/.cache/common-lisp
+          key: "${{ steps.current-month.outputs.value }}-${{ env.cache-name }}-${{ runner.os }}"
+
+      # BUILD
+      - name: Build SBCL 2.1.9
+        run: |
+          export SBCL_ARCH=x86-64
+          cd ~/build/
+          git clone -b static-executable-v2-2.1.9 https://github.com/daewok/sbcl
+          cd sbcl/
+          git fetch
+          sh make.sh --fancy --with-sb-linkable-runtime --with-sb-prelink-linkage-table
+          mkdir -vp ~/build/binary
+          INSTALL_ROOT=~/build/binary sh install.sh
+        if: steps.cache.outputs.cache-hit != 'true'
+
+      - name: First time Install quicklisp
+        run: |
+          cd ~/build/sbcl
+          wget https://beta.quicklisp.org/quicklisp.lisp
+          sh run-sbcl.sh --non-interactive \
+               --eval '(load "quicklisp.lisp")' \
+               --eval '(quicklisp-quickstart:install)' \
+               --eval '(ql-util:without-prompting (ql:add-to-init-file))' \
+               --eval '(ql:update-all-dists)'
+        if: steps.cache.outputs.cache-hit != 'true'
+
+      - name: STEP 1 - Dump .core and .sexp
+        run: |
+          cd ~/build/sbcl
+          sh run-sbcl.sh --non-interactive \
+            --load ~/quicklisp/setup.lisp \
+            --eval '(ql:quickload :deploy)' \
+            --eval '(require :asdf)' \
+            --load "$RUNNER_WORKSPACE"/water/water.asd \
+            --eval '(ql:quickload :water)' \
+            --load tools-for-build/dump-linkage-info.lisp \
+            --eval '(sb-dump-linkage-info:dump-to-file "/tmp/linkage-info.sexp")' \
+            --eval '(sb-ext:save-lisp-and-die "/tmp/sb-gmp-tester.core")'
+          ls -l /tmp
+
+      - name: STEP 2 - Compile .o and static-sbcl
+        run: |
+          cd ~/build/sbcl
+          sh run-sbcl.sh --script tools-for-build/create-linkage-table-prelink-info-override.lisp \
+              /tmp/linkage-info.sexp \
+              /tmp/linkage-table-prelink-info-override.c
+          ls -l /tmp
+          while read l; do \
+            echo "$l"; eval "export ${l%%=*}=\"${l#*=}\""; \
+          done < ~/build/binary/lib/sbcl/sbcl.mk
+          env | sort
+          set -x
+          $CC $CFLAGS -Wno-builtin-declaration-mismatch \
+              -o /tmp/linkage-table-prelink-info-override.o \
+              -c /tmp/linkage-table-prelink-info-override.c
+          $CC -no-pie -static $LINKFLAGS \
+              -o /tmp/static-sbcl \
+              ~/build/binary/lib/sbcl/$LIBSBCL \
+              /tmp/linkage-table-prelink-info-override.o \
+               $LIBS
+          ls -l /tmp
+
+      - name: STEP 3 - Run static-sbcl, with .core, and dump final binary
+        run: |
+          /tmp/static-sbcl \
+            --core /tmp/sb-gmp-tester.core \
+            --non-interactive \
+            --eval '(sb-ext:save-lisp-and-die "/tmp/sbcl-water" :executable t :toplevel (lambda () (water:start)) :compression t)'
+          ls -l /tmp
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: sbcl-static
+          if-no-files-found: error
+          path: |
+            /tmp/sbcl-water
+
+      - name: DEBUG SHELL
+        uses: seemethere/action-tmate@skip_dependency_installation
+        if: ${{ failure() }}
+        with:
+          install_dependencies: false
+          sudo: false
+
