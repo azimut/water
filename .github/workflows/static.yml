@@ -4,16 +4,11 @@ on: [push]
 
 jobs:
   container:
-    if: ${{ false }}  # disable for now
     runs-on: ubuntu-latest
     container:
-      image: clfoundation/sbcl:alpine3.14
+      image: molochwalker/gantoo:latest
     steps:
       - uses: actions/checkout@v2
-
-      - name: APK build deps
-        run: |
-          apk add --no-cache ca-certificates curl openssl make gcc musl-dev linux-headers gnupg patch zlib-dev zlib-static git tar bash xz openssh-client-common zstd musl-dbg
 
       # CACHE
       - run: mkdir -pv ~/build
@@ -32,69 +27,17 @@ jobs:
             ~/.cache/common-lisp
           key: "${{ steps.current-month.outputs.value }}-${{ env.cache-name }}-${{ runner.os }}"
 
-      # BUILD
-      - name: Build SBCL 2.1.9
-        run: |
-          export SBCL_ARCH=x86-64
-          cd ~/build/
-          git clone -b static-executable-v2-2.1.9 https://github.com/daewok/sbcl
-          cd sbcl/
-          git fetch
-          sh make.sh --fancy --with-sb-linkable-runtime --with-sb-prelink-linkage-table
-          mkdir -vp ~/build/binary
-          INSTALL_ROOT=~/build/binary sh install.sh
-        if: steps.cache.outputs.cache-hit != 'true'
-
       - name: First time Install quicklisp
         run: |
           cd ~/build/sbcl
           wget https://beta.quicklisp.org/quicklisp.lisp
-          sh run-sbcl.sh --non-interactive \
+          sbcl --non-interactive \
                --eval '(load "quicklisp.lisp")' \
                --eval '(quicklisp-quickstart:install)' \
                --eval '(ql-util:without-prompting (ql:add-to-init-file))' \
                --eval '(ql:update-all-dists)' \
                --eval '(ql-dist:install-dist "http://bodge.borodust.org/dist/org.borodust.bodge.txt" :replace t :prompt nil)'
         if: steps.cache.outputs.cache-hit != 'true'
-
-      # Step 0: gather deps
-      - name: apk deps
-        run: |
-          cd ~/build
-          apk add --no-cache expat brotli-dev brotli-static woff2-dev libwoff2common expat-dev expat-static libwebp zstd-static bzip2-dev bzip2-static tiff libpng lcms2 libjpeg-turbo-dev libtool fontconfig freetype sdl2-dev | tee apks.log
-          apk add --no-cache --force-broken-world $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-dev' | sort | uniq | sed 's#$#-dev#g')
-          apk add --no-cache --force-broken-world bzip2-static $(cat ~/build/apks.log | grep Installing | cut -f3 -d' ' | fgrep -v -- '-static' | sort | uniq | sed 's#$#-static#g')
-
-      - name: Build SDL 2.0.12
-        #if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          cd ~/build
-          wget https://www.libsdl.org/release/SDL2-2.0.12.tar.gz
-          tar xzf SDL2-2.0.12.tar.gz
-          cd SDL2-2.0.12
-          CFLAGS='-O0 -g' ./configure --prefix=/usr --disable-input-tslib --disable-sdl-dlopen --disable-video-vulkan
-          make
-      - name: Install SDL 2.0.12
-        run: |
-          apk del --force-broken-world sdl2 sdl2-dev
-          cd ~/build/SDL2-2.0.12
-          make install
-
-      - name: Build ImageMagick 6.9.12-28
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          cd ~/build
-          wget https://mirror.dogado.de/imagemagick/ImageMagick-6.9.12-28.tar.gz
-          tar xzf ImageMagick-6.9.12-28.tar.gz
-          cd ImageMagick-6.9.12-28
-          ./configure --with-png --enable-static --disable-openmp --prefix=/usr --with-threads  --without-magick-plus-plus --without-x --without-modules
-          make -j1
-      - name: Install ImageMagick 6.9.12-28
-        run: |
-          cd ~/build/ImageMagick-6.9.12-28
-          make install
-          cd /usr/lib
-          ln -s libMagickWand-6.Q16.so.7.0.0 libMagickWand.so
 
       - name: Get LISP deps
         run: |
@@ -110,8 +53,7 @@ jobs:
 
       - name: STEP 1 - Dump .core and .sexp
         run: |
-          cd ~/build/sbcl
-          sh run-sbcl.sh --non-interactive \
+          sbcl --non-interactive \
             --load ~/quicklisp/setup.lisp \
             --eval '(push :skipgl *features*)' \
             --eval '(ql:quickload :deploy)' \
@@ -119,21 +61,20 @@ jobs:
             --load "$RUNNER_WORKSPACE"/water/water.asd \
             --eval '(ql:quickload :water)' \
             --eval '(pop uiop:*image-restore-hook*)' \
-            --load tools-for-build/dump-linkage-info.lisp \
+            --load /usr/lib64/sbcl/tools-for-build/dump-linkage-info.lisp \
             --eval '(sb-dump-linkage-info:dump-to-file "/tmp/linkage-info.sexp")' \
             --eval '(sb-ext:save-lisp-and-die "/tmp/sb-gmp-tester.core")'
           ls -l /tmp
 
       - name: STEP 2 - Compile .o and static-sbcl
         run: |
-          cd ~/build/sbcl
-          sh run-sbcl.sh --script tools-for-build/create-linkage-table-prelink-info-override.lisp \
+          sbcl.sh --script /usr/lib64/sbcl/tools-for-build/create-linkage-table-prelink-info-override.lisp \
               /tmp/linkage-info.sexp \
               /tmp/linkage-table-prelink-info-override.c
           ls -l /tmp
           while read l; do \
             echo "$l"; eval "export ${l%%=*}=\"${l#*=}\""; \
-          done < ~/build/binary/lib/sbcl/sbcl.mk
+          done < /usr/lib64/sbcl/sbcl.mk
           env | sort
           set -x
           $CC $CFLAGS $(sdl2-config --cflags) -Wno-builtin-declaration-mismatch \
@@ -143,10 +84,11 @@ jobs:
               -o /tmp/static-sbcl \
               ~/build/binary/lib/sbcl/$LIBSBCL \
               /tmp/linkage-table-prelink-info-override.o \
-              $(pkg-config --libs --static MagickWand,fontconfig) $(sdl2-config --static-libs) $LIBS -lpng16 -lz -lzstd -ltiff -ljpeg -lwebp -llcms2 -llzma -lxml2 -lfontconfig -lfreetype -lbz2 -lexpat
+              $(pkg-config --libs --static MagickWand) \
+              $(sdl2-config --static-libs) \
+              $LIBS #-lpng16 -lz -lzstd -ltiff -ljpeg -lwebp -llcms2 -llzma -lxml2 -lfontconfig -lfreetype -lbz2 -lexpat
           ls -l /tmp
-      # fontconfig freetype jng lcms lzma xml
-      # freetype jng jpeg lcms lzma png tiff webp xml zlib zstd
+
       - name: STEP 3 - Run static-sbcl, with .core, and dump final binary
         run: |
           /tmp/static-sbcl \
@@ -163,8 +105,6 @@ jobs:
           if-no-files-found: error
 
       - name: DEBUG SHELL
-        #uses: lhotari/action-upterm@v1
-        #uses: mxschmitt/action-tmate@v3
         uses: seemethere/action-tmate@skip_dependency_installation
         if: ${{ failure() }}
         with:
