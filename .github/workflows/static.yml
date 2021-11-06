@@ -86,7 +86,7 @@ jobs:
               -c /tmp/linkage-table-prelink-info-override.c
           $CC -no-pie -static $LINKFLAGS \
               -o /tmp/static-sbcl \
-              ~/build/binary/lib/sbcl/$LIBSBCL \
+              /usr/lib64/sbcl/$LIBSBCL \
               /tmp/linkage-table-prelink-info-override.o \
               $(pkg-config --libs --static MagickWand) \
               $(sdl2-config --static-libs) \
