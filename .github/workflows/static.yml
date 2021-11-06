@@ -31,6 +31,7 @@ jobs:
         run: |
           cd ~/build/sbcl
           wget https://beta.quicklisp.org/quicklisp.lisp
+          source /etc/profile
           sbcl --non-interactive \
                --eval '(load "quicklisp.lisp")' \
                --eval '(quicklisp-quickstart:install)' \
@@ -53,6 +54,7 @@ jobs:
 
       - name: STEP 1 - Dump .core and .sexp
         run: |
+          source /etc/profile
           sbcl --non-interactive \
             --load ~/quicklisp/setup.lisp \
             --eval '(push :skipgl *features*)' \
@@ -68,7 +70,8 @@ jobs:
 
       - name: STEP 2 - Compile .o and static-sbcl
         run: |
-          sbcl.sh --script /usr/lib64/sbcl/tools-for-build/create-linkage-table-prelink-info-override.lisp \
+          source /etc/profile
+          sbcl --script /usr/lib64/sbcl/tools-for-build/create-linkage-table-prelink-info-override.lisp \
               /tmp/linkage-info.sexp \
               /tmp/linkage-table-prelink-info-override.c
           ls -l /tmp
