@@ -19,7 +19,7 @@ jobs:
         id: cache
         uses: actions/cache@v2
         env:
-          cache-name: cache-alpine-static-sbcl-2.1.9-nuke
+          cache-name: cache-gentoo-static-sbcl-2.1.9
         with:
           path: |
             ~/build
@@ -51,6 +51,8 @@ jobs:
           ( cd cffi/ ; git pull )
           (test -d cl-sdl2) || git clone --depth=1 https://github.com/azimut/cl-sdl2/
           ( cd cl-sdl2/ ; git pull )
+
+      - run: ln -s /usr/lib64/libMagickWand-6.Q16.so.7.0.0 /usr/lib64/libMagickWand.so
 
       - name: STEP 1 - Dump .core and .sexp
         run: |
