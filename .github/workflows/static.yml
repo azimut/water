@@ -3,12 +3,12 @@ name: Static Build
 on: [push]
 
 jobs:
-  container:
+  build:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/azimut/gantoo/musl:latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v1
 
       # CACHE
       - run: mkdir -pv ~/build
