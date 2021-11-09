@@ -44,7 +44,7 @@ jobs:
           source /etc/profile
           sbcl --non-interactive \
             --load ~/quicklisp/setup.lisp \
-            --load "(pushnew \"$PWD/../\" ql:*local-project-directories*)" \
+            --eval "(pushnew \"$PWD/../\" ql:*local-project-directories*)" \
             --eval '(ql:quickload :water)' \
             --load /usr/lib/sbcl/tools-for-build/dump-linkage-info.lisp \
             --eval '(sb-dump-linkage-info:dump-to-file "/tmp/linkage-info.sexp")' \
