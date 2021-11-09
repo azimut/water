@@ -78,7 +78,7 @@ jobs:
           /tmp/static-sbcl \
             --core /tmp/sb-gmp-tester.core \
             --non-interactive \
-            --eval '(sb-ext:save-lisp-and-die "/tmp/sb-gmp-tester" :executable t :toplevel (lambda () (water:start)) :compression 9)'
+            --eval '(sb-ext:save-lisp-and-die "/tmp/sb-gmp-tester" :executable t :toplevel (lambda () (water:start)))'
           ls -l /tmp
 
       - uses: actions/upload-artifact@v2
