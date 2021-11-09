@@ -70,7 +70,7 @@ jobs:
               -o /tmp/static-sbcl \
               /usr/lib/sbcl/$LIBSBCL \
               /tmp/linkage-table-prelink-info-override.o \
-              $LIBS
+              $LIBS -lc
           ls -l /tmp
 
       - name: STEP 3 - Run static-sbcl, with .core, and dump final binary
