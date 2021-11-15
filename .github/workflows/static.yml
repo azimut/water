@@ -11,11 +11,9 @@ jobs:
         with:
           arch: i386
           distro: alpine_latest
-          dockerRunArgs: |
-            --platform=linux/386
           run: |
             uname -m
-            echo ::set-output name=uname::$(uname -m)
+            echo ::set-output name=uname::$(uname -a)
       - uses: azimut/run-on-arch-action@master
         name: Run commands
         id: runcm
@@ -24,7 +22,4 @@ jobs:
           distro: ubuntu18.04
           run: |
             uname -m
-            echo ::set-output name=uname::$(uname -m)
-      - name: Get the output
-        run: |
-          echo "The uname output was ${{ steps.runcm.outputs.uname }}"
+            echo ::set-output name=uname::$(uname -a)
