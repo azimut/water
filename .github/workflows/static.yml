@@ -11,15 +11,40 @@ jobs:
         with:
           arch: i386
           distro: alpine_latest
+          dockerRunArgs: |
+            --volume "${PWD}/artifacts:/artifacts"
           run: |
-            uname -m
-            echo ::set-output name=uname::$(uname -a)
-      - uses: azimut/run-on-arch-action@master
-        name: Run commands
-        id: runcm
+            apk add --no-cache ca-certificates curl openssl make gcc musl-dev linux-headers gnupg patch zlib-dev zlib-static git tar bash xz openssh-client-common zstd musl-dbg
+            export SBCL_ARCH=x86
+            cd ~/build/
+            git clone -b static-executable-v2-2.1.9 https://github.com/daewok/sbcl
+            cd -
+            cd ~/build/sbcl/
+            git fetch
+            sh make.sh --fancy --with-sb-linkable-runtime --with-sb-prelink-linkage-table
+            mkdir -vp ~/build/binary
+            INSTALL_ROOT=~/build/binary sh install.sh
+
+            wget https://beta.quicklisp.org/quicklisp.lisp
+            sh run-sbcl.sh --non-interactive \
+               --eval '(load "quicklisp.lisp")' \
+               --eval '(quicklisp-quickstart:install)' \
+               --eval '(ql-util:without-prompting (ql:add-to-init-file))' \
+               --eval '(ql:update-all-dists)'
+
+            cd -
+            cd bin/
+            ls -l ~/build/binary/ ~/build/binary/lib ~/build/binary/*
+            make static SBCL="$HOME/build/binary/bin/sbcl" SBCL_HOME="$HOME/build/binary/lib/sbcl"
+            cp /tmp/* "/artifacts/"
+      - name: Show the artifact
+        run: |
+          ls -al "${PWD}/artifacts"
+
+      - uses: actions/upload-artifact@v2
         with:
-          arch: armv7
-          distro: ubuntu18.04
-          run: |
-            uname -m
-            echo ::set-output name=uname::$(uname -a)
+          name: sbcl-static-gmp
+          path: |
+            artifacts
+          if-no-files-found: error
+
