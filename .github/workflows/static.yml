@@ -9,7 +9,7 @@ jobs:
         name: Run commands
         id: runcmd
         with:
-          arch: 386
+          arch: i386
           distro: alpine_latest
           githubToken: ${{ github.token }}
           run: |
