@@ -16,7 +16,7 @@ jobs:
             echo ::set-output name=uname::$(uname -m)
       - uses: azimut/run-on-arch-action@master
         name: Run commands
-        id: runcmd
+        id: runcm
         with:
           arch: armv7
           distro: ubuntu18.04
@@ -25,4 +25,4 @@ jobs:
             echo ::set-output name=uname::$(uname -m)
       - name: Get the output
         run: |
-          echo "The uname output was ${{ steps.runcmd.outputs.uname }}"
+          echo "The uname output was ${{ steps.runcm.outputs.uname }}"
