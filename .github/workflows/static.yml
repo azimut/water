@@ -10,7 +10,7 @@ jobs:
         id: runcmd
         with:
           arch: 386
-          distro: alpine
+          distro: alpine_latest
           githubToken: ${{ github.token }}
           run: |
             uname -a
