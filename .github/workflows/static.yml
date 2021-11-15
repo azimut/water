@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - uses: kozross/run-on-arch-action@master
+      - uses: azimut/run-on-arch-action@master
         name: Run commands
         id: runcmd
         with:
