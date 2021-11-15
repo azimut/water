@@ -1,97 +1,20 @@
 name: Static Build
-
 on: [push]
-
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: molochwalker/gantoo:musl
     steps:
       - uses: actions/checkout@v1
-
-      # CACHE
-      - run: mkdir -pv ~/build
-      - name: Get Current Month
-        id: current-month
-        run: echo "::set-output name=value::$(date -u '+%Y-%m')"
-      - name: Cache SBCL 2.1.9 Setup
-        id: cache
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-gentoo-musl-static-sbcl-2.1.9
+      - uses: kozross/run-on-arch-action@master
+        name: Run commands
+        id: runcmd
         with:
-          path: |
-            ~/build
-            ~/quicklisp
-            ~/.cache/common-lisp
-          key: "${{ steps.current-month.outputs.value }}-${{ env.cache-name }}-${{ runner.os }}"
-
-      - name: First time Install quicklisp
+          arch: 386
+          distro: alpine
+          githubToken: ${{ github.token }}
+          run: |
+            uname -a
+            echo ::set-output name=uname::$(uname -a)
+      - name: Get the output
         run: |
-          cd ~/build
-          wget https://beta.quicklisp.org/quicklisp.lisp
-          source /etc/profile
-          sbcl --non-interactive \
-               --eval '(load "quicklisp.lisp")' \
-               --eval '(quicklisp-quickstart:install)' \
-               --eval '(ql-util:without-prompting (ql:add-to-init-file))' \
-               --eval '(ql:update-all-dists)'
-        if: steps.cache.outputs.cache-hit != 'true'
-
-      - name: STEP 1 - Dump .core and .sexp
-        run: |
-          source /etc/profile
-          sbcl --non-interactive \
-            --load ~/quicklisp/setup.lisp \
-            --eval "(pushnew \"$PWD/../\" ql:*local-project-directories*)" \
-            --eval '(ql:quickload :water)' \
-            --load /usr/lib/sbcl/tools-for-build/dump-linkage-info.lisp \
-            --eval '(sb-dump-linkage-info:dump-to-file "/tmp/linkage-info.sexp")' \
-            --eval '(sb-ext:save-lisp-and-die "/tmp/sb-gmp-tester.core")'
-          ls -l /tmp
-
-      - name: STEP 2 - Compile .o and static-sbcl
-        run: |
-          source /etc/profile
-          sbcl --script /usr/lib/sbcl/tools-for-build/create-linkage-table-prelink-info-override.lisp \
-              /tmp/linkage-info.sexp \
-              /tmp/linkage-table-prelink-info-override.c
-          ls -l /tmp
-          while read l; do \
-            echo "$l"; eval "export ${l%%=*}=\"${l#*=}\""; \
-          done < /usr/lib/sbcl/sbcl.mk
-          env | sort
-          set -x
-          $CC $CFLAGS -Wno-builtin-declaration-mismatch \
-              -o /tmp/linkage-table-prelink-info-override.o \
-              -c /tmp/linkage-table-prelink-info-override.c
-          $CC -no-pie -static $LINKFLAGS \
-              -o /tmp/static-sbcl \
-              /usr/lib/sbcl/$LIBSBCL \
-              /tmp/linkage-table-prelink-info-override.o \
-              $LIBS -lc
-          ls -l /tmp
-
-      - name: STEP 3 - Run static-sbcl, with .core, and dump final binary
-        run: |
-          /tmp/static-sbcl \
-            --core /tmp/sb-gmp-tester.core \
-            --non-interactive \
-            --eval '(sb-ext:save-lisp-and-die "/tmp/sb-gmp-tester" :executable t :toplevel (lambda () (water:start)))'
-          ls -l /tmp
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: sbcl-static-gmp
-          path: |
-            /tmp/sb-gmp-tester
-          if-no-files-found: error
-
-      - name: DEBUG SHELL
-        uses: seemethere/action-tmate@skip_dependency_installation
-        if: ${{ failure() }}
-        with:
-          install_dependencies: false
-          sudo: false
-
+          echo "The uname output was ${{ steps.runcmd.outputs.uname }}"
