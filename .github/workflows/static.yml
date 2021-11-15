@@ -11,6 +11,8 @@ jobs:
         with:
           arch: i386
           distro: alpine_latest
+          dockerRunArgs: |
+            --platform=linux/386
           run: |
             uname -m
             echo ::set-output name=uname::$(uname -m)
