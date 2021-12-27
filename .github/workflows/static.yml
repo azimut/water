@@ -19,7 +19,7 @@ jobs:
             export SBCL_ARCH=x86
             mkdir ~/build
             cd ~/build/
-            git clone -b static-executable-v2-2.1.1 https://github.com/daewok/sbcl
+            git clone -b static-executable-v2-2.1.11 https://github.com/daewok/sbcl
             cd -
             cd ~/build/sbcl/
             git fetch
